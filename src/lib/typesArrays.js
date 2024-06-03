@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 //  Array of object`s panels for walls
 import {
 	filenamesBrick,

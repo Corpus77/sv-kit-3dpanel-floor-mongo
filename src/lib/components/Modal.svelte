@@ -1,9 +1,12 @@
 <script>
-	import { slide, scale } from 'svelte/transition';
-	import { linear } from 'svelte/easing';
-	import { createEventDispatcher } from 'svelte';
 	// import { wallArray, floorArray, laminatArray, plintusArray }
 	//  from '../typesArrays.js';
+	import { destroy_block, get_current_component, mount_component } from 'svelte/internal';
+	import { page } from '$app/stores';
+	import { slide, scale } from 'svelte/transition';
+	import { invalidate, invalidateAll } from '$app/navigation';
+	import { linear } from 'svelte/easing';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import {
 		filenamesBrick,
 		filenamesDecBrick,
@@ -15,12 +18,116 @@
 		filenamesWood,
 		filenamesVintage,
 		filenamesCeil,
-		filenamesVinilWall,
-		
+		filenamesVinilWall
 	} from '../filenames.js';
 	import { filenamesPuzzles, filenamesVinil, filenamesPuzzlesButton } from '../filenamesfloor';
 	import { filenamesPlintus } from '../filenamesplintus';
+
+	import {refresh} from '$lib/logic/serverFunctions';
+	
+
 	export let globalSurface;
+	const THISComponent = get_current_component();
+	let isUser;
+	$: isUser = $page.data.userProfile.length;
+	//!_______________________________________________________________
+	let pathName = $page.url.pathname.substring(1);
+	if (pathName == '') {
+		pathName = 'start';
+	}
+	
+
+	function getProfileArr() {
+		console.log($page.data);
+
+		if ($page.data.userProfile.length) {
+			return $page.data.userProfile[0][pathName];
+		} else {
+			return [];
+		}
+	}
+	let favoritesArr = getProfileArr();
+	let currentLogin = $page.data.userProfile.length
+		? $page.data.userProfile[0].credentials.login
+		: '';
+	let currentPassword = $page.data.userProfile.length
+		? $page.data.userProfile[0].credentials.password
+		: '';
+
+	function save(e) {
+		e.stopPropagation();
+		let infoPannelArr = Array.from(e.target.parentNode.querySelectorAll('span'));
+		let panelTosave = {
+			url: '',
+			size: '',
+			title: ''
+		};
+
+		infoPannelArr.forEach((span) => {
+			if (span.classList.contains('url-hidden')) {
+				panelTosave.url = span.textContent;
+			}
+			if (span.classList.contains('size')) {
+				panelTosave.size = span.textContent;
+			}
+			if (span.classList.contains('title')) {
+				panelTosave.title = span.textContent;
+			}
+
+			//console.log(span.textContent) //ok
+		});
+		//console.log(panelTosave);  //ok
+
+		fetch('api/update', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json;utf-8'
+			},
+			body: JSON.stringify({
+				currentLogin,
+				currentPassword,
+				panelTosave,
+				pathName,
+				url: this.parentNode.querySelector('.url-hidden').textContent
+			})
+		})
+			.then(() => {
+				refresh(currentLogin, currentPassword);
+			})
+			.then(() => {
+				THISComponent.$destroy();
+			});
+
+		//____________________________________________________________________
+	}
+
+	function remove(e) {
+		e.stopPropagation();
+		fetch('/api/remove', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json;utf-8'
+			},
+
+			body: JSON.stringify({
+				currentLogin,
+				currentPassword,
+				pathName,
+				url: this.parentNode.querySelector('.url-hidden').textContent,
+				size: this.parentNode.querySelector('.size').textContent,
+				title: this.parentNode.querySelector('.title').textContent
+			})
+		})
+			.then(() => {
+				refresh(currentLogin, currentPassword);
+			})
+			.then(() => {
+				THISComponent.$destroy();
+			});
+	}
+	//____________________________________________________________
+	onMount(() => {});
+
 	// -------------------------------------------------
 	function active(button, typePanel, surfaceArray) {
 		button.classList.toggle('non-active');
@@ -44,6 +151,12 @@
 
 	// //  Array of object`s panels for walls
 	let wallArray = [
+		{
+			type: 'favorites',
+			visible: false,
+			title: 'Избранное',
+			imgArr: favoritesArr
+		},
 		{
 			type: 'simpleBrick',
 			visible: false,
@@ -119,6 +232,12 @@
 	];
 	let laminatArray = [
 		{
+			type: 'favorites',
+			visible: false,
+			title: 'Избранное',
+			imgArr: favoritesArr
+		},
+		{
 			type: 'vinil',
 			visible: false,
 			title: 'Виниловая плитка',
@@ -161,7 +280,7 @@
 				</button>
 			{/each}
 			<!--! for laminat -->
-			{:else if globalSurface == 'laminat'}
+		{:else if globalSurface == 'laminat'}
 			{#each laminatArray as item, index}
 				<button
 					class="btn non-active"
@@ -213,8 +332,15 @@
 						}}
 					>
 						<img src="./textures/{filename.url}" alt="" loading="lazy" />
+						<span class="url-hidden">{filename.url}</span>
 						<span class="title">{filename.title}</span>
-						<span class="size">{filename.size} mm</span>
+						<span class="size">{filename.size}</span>
+						{#if item.type !== 'favorites' && isUser}
+							<span class="save" on:click={save}>Save</span>
+						{/if}
+						{#if item.type == 'favorites' && isUser}
+							<span class="remove" on:click={remove}>Remove</span>
+						{/if}
 					</div>
 				{/each}
 			{/if}
@@ -232,8 +358,10 @@
 						}}
 					>
 						<img src="./textures/floor/{filename.url}" alt="" loading="lazy" />
+						<span class="url-hidden">{filename.url}</span>
+
 						<span class="title">{filename.title}</span>
-						<span class="size">{filename.size} mm</span>
+						<span class="size">{filename.size}</span>
 					</div>
 				{/each}
 			{/if}
@@ -252,8 +380,16 @@
 						}}
 					>
 						<img src="./textures/floor/{filename.url}" alt="" loading="lazy" />
+						<span class="url-hidden">{filename.url}</span>
+
 						<span class="title">{filename.title}</span>
-						<span class="size">{filename.size} mm</span>
+						<span class="size">{filename.size}</span>
+						{#if item.type !== 'favorites' && isUser}
+							<span class="save" on:click={save}>Save</span>
+						{/if}
+						{#if item.type == 'favorites' && isUser}
+							<span class="remove" on:click={remove}>Remove</span>
+						{/if}
 					</div>
 				{/each}
 			{/if}
@@ -271,8 +407,16 @@
 						}}
 					>
 						<img src="./textures/{filename.url}" alt="" loading="lazy" />
+						<span class="url-hidden">{filename.url}</span>
+
 						<span class="title">{filename.title}</span>
-						<span class="size">{filename.size} mm</span>
+						<span class="size">{filename.size}</span>
+						{#if item.type !== 'favorites' && isUser}
+							<span class="save" on:click={save}>Save</span>
+						{/if}
+						{#if item.type == 'favorites' && isUser}
+							<span class="remove" on:click={remove}>Remove</span>
+						{/if}
 					</div>
 				{/each}
 			{/if}
@@ -291,8 +435,10 @@
 						}}
 					>
 						<img src="./textures/plintus/{filename.url}" alt="" loading="lazy" />
+						<span class="url-hidden">{filename.url}</span>
+
 						<span class="title">{filename.title}</span>
-						<span class="size">{filename.size} mm</span>
+						<span class="size">{filename.size}</span>
 					</div>
 				{/each}
 			{/if}
@@ -361,6 +507,21 @@
 		font-weight: bold;
 	}
 	.size {
+		color: white;
+	}
+	.url-hidden {
+		display: none;
+	}
+	.remove {
+		background-color: rgba(186, 23, 23, 0.625);
+		padding: 0 20% 0 20%;
+		border-radius: 3px;
+		color: white;
+	}
+	.save {
+		background-color: rgba(4, 152, 4, 0.625);
+		padding: 0 20% 0 20%;
+		border-radius: 3px;
 		color: white;
 	}
 	@media only screen and (max-width: 480px) {

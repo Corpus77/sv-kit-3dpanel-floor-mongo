@@ -59,6 +59,7 @@
 	}
 	//________________________________________
 	function panelChoice(event) {
+		console.log('dispatch from frames');
 		url = event.detail;
 		if (fillAllFlag && globalSurface == 'wall') {
 			fillAll(walls());
