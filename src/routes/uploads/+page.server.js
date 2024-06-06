@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 
-import { fail } from '@sveltejs/kit';
+//import { fail } from '@sveltejs/kit';
 import { log } from 'console';
 import { readdirSync } from 'fs';
 import { writeFileSync } from 'fs';
@@ -22,10 +22,10 @@ export const actions = {
 		//console.log(fileName); // ok
 		//console.log(data.get('userLogin')); // ok
 		if (!formData.fileToUpload.name || formData.fileToUpload.name === 'undefined') {
-			return fail(400, {
+			return  {
 				error: true,
 				message: 'You must provide a file to upload'
-			});
+			};
 		}
 
 		const { fileToUpload } = formData;
