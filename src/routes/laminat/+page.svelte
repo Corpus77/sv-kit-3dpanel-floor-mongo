@@ -1,5 +1,4 @@
 <script>
-	
 	import { onMount } from 'svelte';
 	import Buttonall from '$lib/components/Buttonall.svelte';
 	import Buttonone from '$lib/components/Buttonone.svelte';
@@ -23,7 +22,9 @@
 	}
 	let url = '';
 	let urlWall = './textures/';
+	let isUploads;
 	
+
 	function fillAll() {
 		panel().forEach((item) => {
 			item.style.background = `url(${urlWall}${url}`;
@@ -35,10 +36,11 @@
 	}
 	function panelChoice(event) {
 		url = event.detail;
-		if (fillAllFlag && globalSurface == 'laminat' ) {
+		if (fillAllFlag && globalSurface == 'laminat') {
 			fillAll(floor());
 			url = event.detail;
-		} else if (!fillAllFlag && globalSurface == 'laminat' ) {
+			console.log(url)
+		} else if (!fillAllFlag && globalSurface == 'laminat') {
 			floor().forEach((item) => {
 				item.onclick = function (e) {
 					url = urlWall + event.detail;
@@ -71,7 +73,7 @@
 		// window.onresize = () => {
 		// 	moveParityColumns(panelMove());
 		// };
-		
+
 		btnHeaderArr = document.querySelectorAll('.btn-header');
 
 		// add bricks to the wall
@@ -117,15 +119,15 @@
 			}}
 		/>
 
-		<Buttonmoveleft surface={floor} {moveParityColumns}  {panelMove}  {panel} />
-		<Buttonmoveup {moveParityColumns}  {panelMove}  {panel} />
+		<Buttonmoveleft surface={floor} {moveParityColumns} {panelMove} {panel} />
+		<Buttonmoveup {moveParityColumns} {panelMove} {panel} />
 		<input type="range" name="" id="angle" min="0" max="50" value="35" class="range" />
 	</header>
 	<div class="floorContainer">
 		<div class="floor" />
 	</div>
 	{#if modalVisible}
-		<Modal {globalSurface} on:panelChoice={panelChoice} />
+		<Modal {globalSurface} on:panelChoice={panelChoice} bind:isUploads/>
 	{/if}
 </div>
 
@@ -180,10 +182,7 @@
 		border: 1px solid black;
 		box-shadow: 5px 5px 4px black;
 	}
-	
-	
-	
-	
+
 	.range {
 		appearance: none;
 		background: rgb(36, 0, 35);

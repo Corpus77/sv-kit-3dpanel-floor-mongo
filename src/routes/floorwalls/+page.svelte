@@ -45,9 +45,15 @@
 	let globalSurface;
 	let btnHeaderArr;
 	let url = '';
-	
+
 	let urlFloor = './textures/floor/';
 	let urlWall = './textures/';
+	let isUploads;
+	$: if(isUploads) {
+		urlWall = './uploads/'
+	} else {
+		urlWall = './textures/'
+	}
 	let instruction =
 		'1. Кнопка -На все стены (потолок, пол)- позволяет разместить выбранную панель (плитку) на все стены (потолок пол) 2. Кнопка -Одна панель- позволяет помещать выбранную панель в нужное для вас место путём нажатия правой кнопкой мыши в выбранном месте стены (потолка, пола).  3.-Плинтус- проявляет окно выбора плинтусов для стен. -Плинтус вверх- и -Плинтус вниз- добавляют выбранный плинтус соответсвенно вверх и вниз данной стены. 4. -Очистить стены (потолок, пол)- очищает все стены (потолок, пол). При клике левой кнопкой мыши на панели (плитке) она поворачивается на 90 градусов ';
 	let wall_1_panels;
@@ -80,7 +86,8 @@
 				item.onclick = function (e) {
 					url = urlWall + event.detail;
 					if (e.target.classList.contains('panel')) {
-						e.target.style.backgroundImage = `url(${url})`;
+						e.target.style.backgroundImage = `url(${url})`
+						e.target.style.backgroundSize = "cover";
 					}
 				};
 			});
@@ -89,7 +96,9 @@
 				item.onclick = function (e) {
 					url = urlFloor + event.detail;
 					if (e.target.classList.contains('panel-floor')) {
-						e.target.style.backgroundImage = `url(${url})`;
+						e.target.style.backgroundImage = `url(${url})`
+						
+						;
 					}
 				};
 			});
@@ -105,6 +114,8 @@
 					url = urlWall + event.detail;
 					if (e.target.classList.contains('panel-ceil')) {
 						e.target.style.backgroundImage = `url(${url})`;
+						e.target.style.backgroundSize = "cover";
+						;
 					}
 				};
 			});
@@ -165,7 +176,7 @@
 		}
 	}
 	console.log();
-	
+
 	//----------------------------------------------
 
 	function addPanel(wallsArg) {
@@ -177,7 +188,7 @@
 				if (globalSurface == 'wall') {
 					panel.classList.add('panel');
 					panel.style.backgroundImage = `url(${urlWall}${url}`;
-
+					panel.style.backgroundSize = 'cover';
 					item.append(panel);
 				} else if (globalSurface == 'floor') {
 					panel.classList.add('panel-floor');
@@ -187,6 +198,8 @@
 				} else if (globalSurface == 'ceil') {
 					panel.classList.add('panel-ceil');
 					panel.style.backgroundImage = `url(${urlWall}${url}`;
+					panel.style.backgroundSize = "cover";
+					
 
 					item.append(panel);
 				}
@@ -200,7 +213,7 @@
 		//non-visible when click on anything but that modal
 		document.onclick = (e) => {
 			instrVisible = bodyClick(e, 'instr', 'instruction');
-			modalPlintusVisible = bodyClick(e, 'callPlintus', 'wallButtons')
+			modalPlintusVisible = bodyClick(e, 'callPlintus', 'wallButtons');
 		};
 		btnHeaderArr = document.querySelectorAll('.btn-header');
 
@@ -334,12 +347,10 @@
 				class="callPlintus"
 				on:click={() => {
 					modalPlintusVisible = !modalPlintusVisible;
-					
 				}}>Плинтус</button
 			>
 			<div class="buttonWrapper">
-				<Buttonall 
-				
+				<Buttonall
 					buttonText="На все стены"
 					on:fillAll={(event) => {
 						modalVisible = !modalVisible;
@@ -470,12 +481,11 @@
 	</div>
 
 	{#if modalVisible}
-		<Modal {globalSurface} on:panelChoice={panelChoice} />
+		<Modal {globalSurface} bind:isUploads on:panelChoice={panelChoice}  />
 	{/if}
 </div>
 
 <style>
-	
 	* {
 		padding: 0;
 		margin: 0;
@@ -640,13 +650,13 @@
 			min-height: 20%;
 		}
 		.callPlintus {
-			font-size: .7em;
+			font-size: 0.7em;
 		}
 		.buttonWrapper {
 			margin: 0;
 			padding: 0;
-			align-items:flex-start;
-			font-size: .9em;
+			align-items: flex-start;
+			font-size: 0.9em;
 		}
 		.modalPlintusVisible {
 			width: 32%;
@@ -666,7 +676,7 @@
 			left: 40%;
 		}
 		.callPlintus {
-			font-size: .6em;
+			font-size: 0.6em;
 		}
 	}
 </style>

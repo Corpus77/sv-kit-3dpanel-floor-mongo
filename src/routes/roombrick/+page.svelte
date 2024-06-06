@@ -12,7 +12,7 @@
 	import Plintusdown from '$lib/components/Plintusdown.svelte';
 	import Instr from '../../lib/components/Instr.svelte';
 	import Instrbutton from '../../lib/components/Instrbutton.svelte';
-	import {bodyClick} from '$lib/logic/functions'
+	import { bodyClick } from '$lib/logic/functions';
 	let modalVisible = false;
 	let fillAllFlag = true;
 	let plintusUpFlag = false;
@@ -21,11 +21,18 @@
 	let btnHeaderArr;
 	let url = '';
 	let urlWall = './textures/';
+	let isUploads;
+	$: if (isUploads) {
+		urlWall = './uploads/';
+	} else {
+		urlWall = './textures/';
+	}
+
 	let instrVisible = false;
-	let instruction = "1. Кнопка -На все кирпичи- позволяет разместить кирпичик из выбранной панели на всю стену 2. Кнопка -Одна панель- позволяет помещать кирпичик из выбранной панели в нужное для вас место путём нажатия правой кнопкой мыши в выбранном месте стены. 3. -Плинтус вверх- и -Плинтус вниз- добавляют выбранный плинтус соответсвенно вверх и вниз. 4. -Очистить стену- очищает всю стену."
+	let instruction =
+		'1. Кнопка -На все кирпичи- позволяет разместить кирпичик из выбранной панели на всю стену 2. Кнопка -Одна панель- позволяет помещать кирпичик из выбранной панели в нужное для вас место путём нажатия правой кнопкой мыши в выбранном месте стены. 3. -Плинтус вверх- и -Плинтус вниз- добавляют выбранный плинтус соответсвенно вверх и вниз. 4. -Очистить стену- очищает всю стену.';
 	//_________________________________________________
 
-	
 	function fillAll() {
 		panel().forEach((item) => {
 			item.style.background = `url(${urlWall}${url}`;
@@ -75,7 +82,6 @@
 	onMount(() => {
 		document.onclick = (e) => {
 			instrVisible = bodyClick(e, 'instr', 'instruction');
-			
 		};
 		btnHeaderArr = document.querySelectorAll('.btn-header');
 		// add bricks to the wall
@@ -99,8 +105,7 @@
 				}
 			}
 		}
-	}
-	);
+	});
 </script>
 
 <div class="container">
@@ -166,8 +171,7 @@
 				});
 			}}
 		/>
-		<Instrbutton bind:instrVisible bgcolor = 'rgb(85, 77, 195)' color = 'wheat'></Instrbutton>
-		
+		<Instrbutton bind:instrVisible bgcolor="rgb(85, 77, 195)" color="wheat" />
 	</header>
 	<div class="wall">
 		{#if plintusUpFlag}
@@ -178,10 +182,10 @@
 		{/if}
 	</div>
 	{#if instrVisible}
-		<Instr instrText = {instruction}></Instr>
+		<Instr instrText={instruction} />
 	{/if}
 	{#if modalVisible}
-		<Modal {globalSurface} on:panelChoice={panelChoice} />
+		<Modal {globalSurface} on:panelChoice={panelChoice} bind:isUploads />
 	{/if}
 </div>
 
@@ -211,5 +215,4 @@
 		box-shadow: 15px 16px 4px black;
 		overflow: hidden;
 	}
-	
 </style>

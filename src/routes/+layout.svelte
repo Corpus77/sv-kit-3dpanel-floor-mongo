@@ -11,7 +11,7 @@
 	//console.log(data);
 
 	let starVisible = false;
-	let currentUrl = $page.route.id.substr(1);
+	let currentUrl = $page.route.id?.substr(1);
 
 	let linksVisible = false;
 	let favoritesVisible = false;
@@ -78,27 +78,30 @@
 <nav>
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div class="burger" on:click={burgerClick}>
-		<img class="" src="./burger.png" alt="" title="Menu" />
-		<span class="text">Menu</span>
+		<img class="" src="./burger.png" alt="" title="Меню" />
+		<span class="text">Меню</span>
 	</div>
 
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<a href="/sign-in">Sign in</a>
-	<a href="/sign-up">Sign up</a>
+	<a href="/sign-in">Вход</a>
+	<a href="/sign-up">Регистрация</a>
+	{#if isUser}
+		<a href="/uploads" class="load">Загрузить</a>
+	{/if}
 
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	{#if isUser}
-		<p class="text exit" on:click={exit}>Exit</p>
+		<p class="text exit" on:click={exit}>Выход</p>
 	{/if}
 	{#if data.userProfile?.length}
 		<span class="text hello name"
-			><span class="text hello">Hello, </span>{data.userProfile[0]?.name}</span
+			><span class="text hello">Привет, </span>{data.userProfile[0]?.name}</span
 		>
 	{/if}
 
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	{#if starVisible}
-		<img class="star" src="/favorites.jpg" alt="favorites" srcset="" on:click={favorites} />
+		<img class="star" src="/favorites.jpg" alt="favorites" title="Избранное" on:click={favorites} />
 	{/if}
 
 	{#if favoritesVisible}
@@ -196,16 +199,19 @@
 	}
 	a:active {
 		transform: translateY(3px);
-		text-shadow: 2px 2px 2px rgb(51, 255, 0);
+		text-shadow: 2px 2px 2px rgb(13, 65, 0);
 	}
 	.exit {
 		font-size: 3vh;
 		color: rgb(123, 4, 4);
-		font-family: 'Courier New', Courier, monospace;
 		font-weight: bold;
 		font-variant: small-caps;
-
 		cursor: pointer;
+	}
+	.load {
+		color: rgb(12, 246, 0);
+		text-decoration: none;
+		text-shadow: 1px 1px 2px black;
 	}
 	.hello {
 		font-size: 3vh;

@@ -10,6 +10,14 @@
 	let modalVisible = false;
 	let globalSurface = 'wall';
 	let url = '';
+	let wallUrl = './textures/';
+	let isUploads;
+	$: if(isUploads) {
+		wallUrl = './uploads/'
+	}else {
+		wallUrl = './textures/'
+	}
+
 	let surface;
 	let fillAllFlag = false;
 	function fartuk() {
@@ -23,7 +31,8 @@
 		modalVisible = !modalVisible;
 		if (fillAllFlag) {
 			fartuk().childNodes.forEach((item) => {
-				item.style.backgroundImage = `url(./textures/${url})`;
+				item.style.backgroundImage = `url(${wallUrl}${url})`;
+				item.style.backgroundSize = 'cover';
 			});
 			fillAllFlag = false;
 		}
@@ -40,10 +49,12 @@
 		};
 		surface = document.querySelector('.kitchenContainer');
 		surface.onclick = function (e) {
-			e.target.style.backgroundImage = `url(./textures/${url})`;
+			e.target.style.backgroundImage = `url(${wallUrl}${url})`;
+			e.target.style.backgroundSize = 'cover';
 		};
 		surface.ondblclick = function (e) {
 			e.target.style.backgroundImage = 'none';
+			
 		};
 		surface.oncontextmenu = function (e) {
 			e.preventDefault();
@@ -137,7 +148,7 @@
 		</div>
 	</div>
 	{#if modalVisible}
-		<Modal {globalSurface} on:panelChoice={panelChoice} />
+		<Modal {globalSurface} bind:isUploads on:panelChoice={panelChoice} />
 	{/if}
 </div>
 

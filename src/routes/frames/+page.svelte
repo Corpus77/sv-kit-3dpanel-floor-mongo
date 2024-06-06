@@ -30,12 +30,19 @@
 	let plintusDownFlag = false;
 
 	let globalSurface = 'wall';
+	let isUploads;
+	let url = '';
+	let urlWall;
+	$: if (isUploads) {
+		urlWall = "./uploads/"
+	} else {
+		urlWall = './textures/'
+	}
+
 	let btnHeaderArr;
 
 	let side;
 
-	let url = '';
-	let urlWall = './textures/';
 
 	let instruction =
 		"1. Кнопка -На всю стену- позволяет разместить выбранную панель на всю стену 2. Кнопка -Одна панель- позволяет помещать выбранную панель в нужное для вас место путём нажатия правой кнопкой мыши в выбранном месте стены. При двойном нажатии, появляется возможность помещать плинтус на любую сторону данной панели. Для этого наведите курсор на нужную сторону панели (при этом курсор изменится на '+'). Кликните правой кнопкой мыши и выберите нужный плинтус. При повторном нажатии на появившемся плинтусе, он исчезнет. 3. -Плинтус вверх- и -Плинтус вниз- добавляют выбранный плинтус соответсвенно вверх и вниз. 4. -Очистить стену- очищает всю стену. При клике левой кнопкой мыши на панели она поворачивается на 90 градусов";
@@ -48,6 +55,7 @@
 				panel.classList.add('panel');
 				panel.style.position = 'relative';
 				panel.style.backgroundImage = `url(${urlWall}${url}`;
+				panel.style.backgroundSize = "cover";
 				item.append(panel);
 			}
 		});
@@ -59,7 +67,7 @@
 	}
 	//________________________________________
 	function panelChoice(event) {
-		console.log('dispatch from frames');
+		
 		url = event.detail;
 		if (fillAllFlag && globalSurface == 'wall') {
 			fillAll(walls());
@@ -241,7 +249,7 @@
 		</div>
 	</div>
 	{#if modalVisible}
-		<Modal {globalSurface} on:panelChoice={panelChoice} />
+		<Modal {globalSurface} bind:isUploads on:panelChoice={panelChoice} />
 	{/if}
 </div>
 

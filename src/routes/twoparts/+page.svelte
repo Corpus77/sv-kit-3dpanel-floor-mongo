@@ -46,6 +46,14 @@
 	let proportionValue = '50';
 	let instruction =
 		'1. Кнопка -На всю стену- позволяет разместить выбранную панель на всю стену 2. Кнопка -Одна панель- позволяет помещать выбранную панель в нужное для вас место путём нажатия правой кнопкой мыши в выбранном месте стены.3. -Плинтус вверх- и -Плинтус вниз- добавляют выбранный плинтус соответсвенно вверх и вниз. 4. -Очистить стену- очищает всю стену. При клике левой кнопкой мыши на панели она поворачивается на 90 градусов. 5.Кнопка -Положение- меняет положение стен вертикально/горизонтально. 6.кнопка -Зубцы- добавляет зубцы на стыке двух стен (возможно только в горизонтальном положении. 7. Ползунок -Пропорция- изменяет соотношение размера стен.';
+
+	let isUploads;
+	$: if (isUploads) {
+		urlWall = "./uploads/"
+	} else {
+		urlWall = './textures/'
+	}
+
 	//TODO: Function console flags
 	function consFlags() {
 		console.log('plintusUpFlag = ' + plintusUpFlag);
@@ -85,6 +93,7 @@
 					url = urlWall + event.detail;
 					if (e.target.classList.contains('panel')) {
 						e.target.style.backgroundImage = `url(${url})`;
+						e.target.style.backgroundSize = "cover";
 					}
 				};
 			});
@@ -95,6 +104,7 @@
 			setTimeout(() => {
 				Array.from(document.querySelector('.plintusUp').children).forEach((item) => {
 					item.style.backgroundImage = `url('./textures/plintus/${url}')`;
+					
 				}, 100);
 			});
 		} else if (globalSurface == 'plintusDown') {
@@ -133,6 +143,7 @@
 
 				panel.classList.add('panel');
 				panel.style.backgroundImage = `url(${urlWall}${url}`;
+				panel.style.backgroundSize = 'cover';
 				item.append(panel);
 			}
 		});
@@ -452,7 +463,7 @@
 		<Instr instrText={instruction} />
 	{/if}
 	{#if modalVisible}
-		<Modal {globalSurface} on:panelChoice={panelChoice} />
+		<Modal {globalSurface} on:panelChoice={panelChoice} bind:isUploads = {isUploads}/>
 	{/if}
 </div>
 

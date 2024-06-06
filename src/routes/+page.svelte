@@ -7,42 +7,45 @@
 	let urlWall = '/textures/';
 	let urlFloor = '/textures/floor/';
 	function divRet(surface) {
-		return document.querySelector(`.${surface}`)
+		return document.querySelector(`.${surface}`);
 	}
 	function squareMake() {
-		divRet('wall').style.height = divRet('wall').offsetWidth +'px'
-		divRet('floor').style.height = divRet('wall').offsetWidth +'px'
+		divRet('wall').style.height = divRet('wall').offsetWidth + 'px';
+		divRet('floor').style.height = divRet('wall').offsetWidth + 'px';
 	}
 	function panelChoice(event) {
 		modalVisible = !modalVisible;
 		url = event.detail;
-		if(globalSurface == 'wall') {
-			divRet('wall').firstChild.setAttribute('src', `${urlWall}${url}` )
-			
+		if (globalSurface == 'wall') {
+			divRet('wall').firstChild.setAttribute('src', `${urlWall}${url}`);
 		} else {
-			divRet('floor').firstChild.setAttribute('src', `${urlFloor}${url}` )
+			divRet('floor').firstChild.setAttribute('src', `${urlFloor}${url}`);
 		}
-			
 	}
 	onMount(() => {
 		squareMake();
 		window.onresize = () => {
-			squareMake(); 
-		}
-	})	
+			squareMake();
+		};
+	});
 </script>
 
 <div class="root">
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div
 		class="imgContainer wall"
-		
 		on:click={function () {
 			modalVisible = !modalVisible;
 			globalSurface = 'wall';
-			
 		}}
-	> <img src="/textures/stonesand.jpg" alt="">
+	>
+		<img
+			src="/textures/stonesand.jpg"
+			alt=""
+			on:error={(e) => {
+				e.target.setAttribute('src', `/uploads/${url}`);
+			}}
+		/>
 		<h1 class="title">На стены или потолок</h1>
 	</div>
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -53,7 +56,10 @@
 			globalSurface = 'floor';
 		}}
 	>
-	<img src="/textures/floor/f-grass.jpg" alt="">
+		<img src="/textures/floor/f-grass.jpg" alt=""
+		on:error={(e) => {
+			e.target.setAttribute('src', `/uploads/${url}`);
+		}} />
 		<h1 class="title">На пол</h1>
 	</div>
 </div>
@@ -77,8 +83,8 @@
 		justify-content: baseline;
 		align-items: center;
 		width: 30vw;
-		background-size:cover;
 		
+		background-size: cover;
 	}
 	img {
 		width: 100%;
@@ -86,11 +92,10 @@
 		object-fit: cover;
 		box-shadow: 8px 8px 16px;
 	}
-		
-	
+
 	.title {
 		color: white;
-		text-shadow: 2px 2px 4px black;;
+		text-shadow: 2px 2px 4px black;
 	}
 
 	@media only screen and (max-height: 500px) {

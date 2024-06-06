@@ -36,12 +36,12 @@
 						profileStore.set(cont);
 
 						if (!cont.length) {
-							loginStatus = 'Wrong login or password.';
+							loginStatus = 'Неверный логин или пароль.';
 							invalidateAll();
 						} else {
 							loginStatus = '';
 							console.log(cont);
-							loginStatus = `Hello, ${cont[0].name}!`;
+							loginStatus = `Привет, ${cont[0].name}!`;
 							setTimeout(() => {
 								window.location.href = '/';
 							}, 1000);
@@ -50,7 +50,7 @@
 					.then(() => {})
 					.catch((err) => console.log(err));
 			} else {
-				loginStatus = 'All fields must be fullfilled.';
+				loginStatus = 'Все поля должны быть заполнены.';
 			}
 		} else {
 			
@@ -67,7 +67,7 @@
 				.then((isLogin) => {
 					console.log(isLogin)
 					if(isLogin.length) {
-						message = "Login already exists"
+						loginStatus = "Такой логин уже существует."
 					} else {
 						 fetch('/api/sign-in', {
 					method: 'POST',
@@ -79,13 +79,15 @@
 				})
 				.then(() => invalidateAll())
 				.then(() => {
-					loginStatus = `Hello, ${name}!`;
+					loginStatus = `Привет, ${name}!`;
 							setTimeout(() => {
 								window.location.href = '/';
 							}, 1000)
 				})
 					}
 				})
+			} else {
+				loginStatus = 'Все поля должны быть заполнены.'
 			}
 		}
 		
@@ -97,10 +99,10 @@
 	{#if loginStatus}
 		<span class="status">{loginStatus}</span>
 	{/if}
-	<input type="text" placeholder="Enter login" bind:value={login} />
-	<input type="text" placeholder="Enter password" bind:value={password} />
+	<input type="text" placeholder="Введите логин" bind:value={login} required/>
+	<input type="text" placeholder="Введите пароль" bind:value={password} required />
 	{#if nameVisible}
-		<input type="text" placeholder="Enter your name" bind:value={name} />
+		<input type="text" placeholder="Введите ваше имя" bind:value={name} required />
 	{/if}
 
 	<button on:click={handler}>Submit</button>

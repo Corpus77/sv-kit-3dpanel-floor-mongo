@@ -23,22 +23,22 @@
 	import { filenamesPuzzles, filenamesVinil, filenamesPuzzlesButton } from '../filenamesfloor';
 	import { filenamesPlintus } from '../filenamesplintus';
 
-	import {refresh} from '$lib/logic/serverFunctions';
-	
+	import { refresh } from '$lib/logic/serverFunctions';
 
 	export let globalSurface;
+	export let isUploads;
 	const THISComponent = get_current_component();
 	let isUser;
 	$: isUser = $page.data.userProfile.length;
 	//!_______________________________________________________________
+	
 	let pathName = $page.url.pathname.substring(1);
 	if (pathName == '') {
 		pathName = 'start';
 	}
-	
 
 	function getProfileArr() {
-		console.log($page.data);
+		//console.log($page.data); //ok
 
 		if ($page.data.userProfile.length) {
 			return $page.data.userProfile[0][pathName];
@@ -46,6 +46,18 @@
 			return [];
 		}
 	}
+
+	function getUploadsArr() {
+		//console.log($page.data.userProfile[0].uploads);//ok
+
+		if ($page.data.userProfile.length) {
+			return $page.data.userProfile[0].uploads;
+		} else {
+			return [];
+		}
+	}
+//________________________________________________________
+	let uploadsArr = getUploadsArr();
 	let favoritesArr = getProfileArr();
 	let currentLogin = $page.data.userProfile.length
 		? $page.data.userProfile[0].credentials.login
@@ -53,6 +65,7 @@
 	let currentPassword = $page.data.userProfile.length
 		? $page.data.userProfile[0].credentials.password
 		: '';
+//________________________________________________________
 
 	function save(e) {
 		e.stopPropagation();
@@ -125,6 +138,41 @@
 				THISComponent.$destroy();
 			});
 	}
+
+	function removeLoaded(e) {
+		e.stopPropagation();
+		fetch('/api/remove-loaded', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json;utf-8'
+			},
+			body: JSON.stringify({
+				url: this.parentNode.querySelector('.url-hidden').textContent
+			})
+		}).then(() => {
+			fetch('/api/remove', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;utf-8'
+				},
+
+				body: JSON.stringify({
+					currentLogin,
+					currentPassword,
+					pathName: 'uploads',
+					url: this.parentNode.querySelector('.url-hidden').textContent,
+					size: this.parentNode.querySelector('.size').textContent,
+					title: this.parentNode.querySelector('.title').textContent
+				})
+			})
+			.then(() => {
+				refresh(currentLogin, currentPassword);
+			})
+			.then(() => {
+				THISComponent.$destroy();
+			});
+		});
+	}
 	//____________________________________________________________
 	onMount(() => {});
 
@@ -151,6 +199,12 @@
 
 	// //  Array of object`s panels for walls
 	let wallArray = [
+		{
+			type: 'uploads',
+			visible: false,
+			title: 'Сохраненные',
+			imgArr: uploadsArr
+		},
 		{
 			type: 'favorites',
 			visible: false,
@@ -216,6 +270,7 @@
 	];
 	// Array of object`s items for floor
 	let floorArray = [
+		
 		{
 			type: 'pazzles',
 			visible: false,
@@ -231,6 +286,7 @@
 		}
 	];
 	let laminatArray = [
+		
 		{
 			type: 'favorites',
 			visible: false,
@@ -259,11 +315,17 @@
 		<!-- "'each' cycle button rendering" -->
 		{#if globalSurface == 'wall'}
 			{#each wallArray as item, index}
+				<!-- ! uploads -->
 				<button
 					class="btn non-active"
 					on:click={(e) => {
 						active(e.target, item, wallArray);
 						item.visible = !item.visible;
+						if (item.type == 'uploads') {
+							isUploads = true;
+						} else {
+							isUploads = false;
+						}
 					}}
 					>{item.title}
 				</button>
@@ -279,7 +341,7 @@
 					>{item.title}
 				</button>
 			{/each}
-			<!--! for laminat -->
+			<!-- for laminat -->
 		{:else if globalSurface == 'laminat'}
 			{#each laminatArray as item, index}
 				<button
@@ -298,6 +360,11 @@
 					on:click={(e) => {
 						active(e.target, item, wallArray);
 						item.visible = !item.visible;
+						if (item.type == 'uploads') {
+							isUploads = true;
+						} else {
+							isUploads = false;
+						}
 					}}
 					>{item.title}
 				</button>
@@ -331,15 +398,26 @@
 							panelChoice(filename.url);
 						}}
 					>
-						<img src="./textures/{filename.url}" alt="" loading="lazy" />
+						<!--! uploads  -->
+						<img
+							src="./textures/{filename.url}"
+							alt=""
+							loading="lazy"
+							on:error|preventDefault={(e) => {
+								e.target.setAttribute('src', `./uploads/${filename.url}`);
+							}}
+						/>
 						<span class="url-hidden">{filename.url}</span>
 						<span class="title">{filename.title}</span>
 						<span class="size">{filename.size}</span>
-						{#if item.type !== 'favorites' && isUser}
-							<span class="save" on:click={save}>Save</span>
+						{#if item.type !== 'favorites' && item.type !== 'uploads' && isUser}
+							<span class="save" on:click={save}>Сохранить</span>
 						{/if}
 						{#if item.type == 'favorites' && isUser}
-							<span class="remove" on:click={remove}>Remove</span>
+							<span class="remove" on:click={remove}>Удалить</span>
+						{/if}
+						{#if item.type == 'uploads' && isUser}
+							<span class="remove" on:click={removeLoaded}>Удалить</span>
 						{/if}
 					</div>
 				{/each}
@@ -362,6 +440,9 @@
 
 						<span class="title">{filename.title}</span>
 						<span class="size">{filename.size}</span>
+						{#if item.type == 'uploads' && isUser}
+							<span class="remove" on:click={removeLoaded}>Удалить</span>
+						{/if}
 					</div>
 				{/each}
 			{/if}
@@ -379,7 +460,7 @@
 							panelChoice(filename.url);
 						}}
 					>
-						<img src="./textures/floor/{filename.url}" alt="" loading="lazy" />
+						<img src="./textures/floor/{filename.url}" alt="" loading="lazy"  />
 						<span class="url-hidden">{filename.url}</span>
 
 						<span class="title">{filename.title}</span>
@@ -388,7 +469,7 @@
 							<span class="save" on:click={save}>Save</span>
 						{/if}
 						{#if item.type == 'favorites' && isUser}
-							<span class="remove" on:click={remove}>Remove</span>
+							<span class="remove" on:click={remove}>Удалить</span>
 						{/if}
 					</div>
 				{/each}
@@ -406,16 +487,21 @@
 							panelChoice(filename.url);
 						}}
 					>
-						<img src="./textures/{filename.url}" alt="" loading="lazy" />
+						<img src="./textures/{filename.url}" alt="" loading="lazy" on:error|preventDefault={(e) => {
+							e.target.setAttribute('src', `./uploads/${filename.url}`);
+						}} />
 						<span class="url-hidden">{filename.url}</span>
 
 						<span class="title">{filename.title}</span>
 						<span class="size">{filename.size}</span>
-						{#if item.type !== 'favorites' && isUser}
-							<span class="save" on:click={save}>Save</span>
+						{#if item.type !== 'favorites' && isUser && item.type !== 'uploads'}
+							<span class="save" on:click={save}>Сохранить</span>
 						{/if}
-						{#if item.type == 'favorites' && isUser}
-							<span class="remove" on:click={remove}>Remove</span>
+						{#if item.type == 'favorites' && isUser && item.type !== 'uploads'}
+							<span class="remove" on:click={remove}>Удалить</span>
+						{/if}
+						{#if item.type == 'uploads' && isUser}
+							<span class="remove" on:click={removeLoaded}>Удалить</span>
 						{/if}
 					</div>
 				{/each}
