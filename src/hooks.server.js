@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 /** @type {import('@sveltejs/kit').Handle} */
 import mongoose from 'mongoose';
-import { MONGO_KEY } from '$env/static/private';
+//import { MONGO_KEY } from '$env/static/private';
 
 //_____________________________________________________________________________
-const URLdb = `mongodb+srv://corpusne:${MONGO_KEY}@cluster0.gskjvpy.mongodb.net/3d-panels`;
+const URLdb = `mongodb+srv://corpusne:lr3zvMwPgxvBxsxU@cluster0.gskjvpy.mongodb.net/3d-panels`;
 
 mongoose
 	.connect(URLdb)
